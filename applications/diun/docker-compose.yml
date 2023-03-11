@@ -7,7 +7,7 @@ services:
     command: serve
     volumes:
       - "diun_data:/data"
-      - "{{docker_sock}}:/var/run/docker.sock"
+      - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
       - "TZ=Europe/Berlin"
       - "LOG_LEVEL=info"
