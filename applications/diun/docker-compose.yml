@@ -1,0 +1,26 @@
+version: "3.5"
+
+services:
+  diun:
+    image: crazymax/diun:latest
+    container_name: diun
+    command: serve
+    volumes:
+      - "diun_data:/data"
+      - "{{docker_sock}}:/var/run/docker.sock"
+    environment:
+      - "TZ=Europe/Berlin"
+      - "LOG_LEVEL=info"
+      - "LOG_JSON=false"
+      - "DIUN_WATCH_WORKERS=20"
+      - "DIUN_WATCH_SCHEDULE=${CRON_SCHEDULE}"
+      - "DIUN_WATCH_JITTER=30s"
+      - "DIUN_PROVIDERS_DOCKER=true"
+      - "DIUN_PROVIDERS_DOCKER_WATCHBYDEFAULT=true"
+      - "DIUN_NOTIF_WEBHOOK_ENDPOINT=${NOTIF_WEBHOOK_ENDPOINT}"
+      - "DIUN_NOTIF_WEBHOOK_METHOD=${NOTIF_WEBHOOK_METHOD}"
+    restart: unless-stopped
+
+volumes:
+  diun_data:
+    name: ${VOLUME_NAME}
