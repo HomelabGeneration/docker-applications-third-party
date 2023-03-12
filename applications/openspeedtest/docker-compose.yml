@@ -1,0 +1,10 @@
+version: "3.3"
+
+services:
+  speedtest:
+    image: openspeedtest/latest
+    container_name: openspeedtest
+    ports:
+      - ${HTTP_PORT}:3000
+      - ${HTTPS_PORT}:3001
+    restart: unless-stopped
