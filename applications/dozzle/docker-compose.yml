@@ -10,3 +10,4 @@ services:
     environment:
       - "DOZZLE_USERNAME=${DOZZLE_USERNAME}"
       - "DOZZLE_PASSWORD=${DOZZLE_PASSWORD}"
+    restart: unless-stopped
