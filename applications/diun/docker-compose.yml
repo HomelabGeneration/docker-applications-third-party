@@ -19,6 +19,7 @@ services:
       - "DIUN_PROVIDERS_DOCKER_WATCHBYDEFAULT=true"
       - "DIUN_NOTIF_WEBHOOK_ENDPOINT=${NOTIF_WEBHOOK_ENDPOINT}"
       - "DIUN_NOTIF_WEBHOOK_METHOD=${NOTIF_WEBHOOK_METHOD}"
+      - "DIUN_NOTIF_WEBHOOK_HEADERS_CONTENT-TYPE=application/json"
     restart: unless-stopped
 
 volumes:
