@@ -1,0 +1,9 @@
+version: "3.5"
+
+services:
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    ports:
+      - ${HTTP_PORT}:3000
+    restart: unless-stopped
