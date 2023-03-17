@@ -1,0 +1,20 @@
+version: "3.5"
+
+services:
+  backup:
+    image: offen/docker-volume-backup:v2
+    environment:
+      WEBDAV_URL: ${WEBDAV_URL}
+      WEBDAV_PATH: ${WEBDAV_PATH}
+      WEBDAV_USERNAME: ${WEBDAV_USERNAME}
+      WEBDAV_PASSWORD: ${WEBDAV_PASSWORD}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS}
+      GPG_PASSPHRASE: ${GPG_PASSPHRASE}
+      BACKUP_STOP_CONTAINER_LABEL: ${BACKUP_STOP_CONTAINER_LABEL}
+    volumes:
+      - data:/backup/my-app-backup:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+volumes:
+  data:
+    name: ${VOLUME_NAME}
