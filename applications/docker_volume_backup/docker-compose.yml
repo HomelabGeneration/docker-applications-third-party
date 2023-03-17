@@ -4,6 +4,8 @@ services:
   backup:
     image: offen/docker-volume-backup:v2
     environment:
+      BACKUP_CRON_EXPRESSION: ${BACKUP_CRON_EXPRESSION}
+      BACKUP_FILENAME: ${BACKUP_FILENAME}
       WEBDAV_URL: ${WEBDAV_URL}
       WEBDAV_PATH: ${WEBDAV_PATH}
       WEBDAV_USERNAME: ${WEBDAV_USERNAME}
