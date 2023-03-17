@@ -6,4 +6,10 @@ services:
     container_name: grafana
     ports:
       - ${HTTP_PORT}:3000
+    volumes:
+      - grafana_storage:/var/lib/grafana
     restart: unless-stopped
+
+volumes:
+  grafana_storage:
+    name: ${VOLUME_NAME}
