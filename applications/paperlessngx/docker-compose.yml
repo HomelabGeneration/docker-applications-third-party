@@ -1,0 +1,52 @@
+services:
+  broker:
+    image: docker.io/library/redis:7
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+
+  db:
+    image: docker.io/library/postgres:16
+    restart: unless-stopped
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRESS_DB}
+      POSTGRES_USER: ${POSTGRESS_USER}
+      POSTGRES_PASSWORD: ${POSTGRESS_PASSWORD}
+
+  webserver:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    restart: unless-stopped
+    depends_on:
+      - db
+      - broker
+    ports:
+      - ${HTTP_PORT}:8000
+    volumes:
+      - data:/usr/src/paperless/data
+      - media:/usr/src/paperless/media
+      - ./export:/usr/src/paperless/export
+      - ./consume:/usr/src/paperless/consume
+    environment:
+      PAPERLESS_REDIS: redis://broker:6379
+      PAPERLESS_DBHOST: db
+      USERMAP_UID: ${USER_UID}
+      USERMAP_GID: ${USER_GID}
+      PAPERLESS_SECRET_KEY: ${PAPERLESS_SECRET_KEY}
+      PAPERLESS_TIME_ZONE: Europe/Berlin
+      PAPERLESS_OCR_LANGUAGE: deu
+      PAPERLESS_URL: ${PAPERLESS_URL}
+      PAPERLESS_APP_TITLE: ${PAPERLESS_APP_TITLE}
+      PAPERLESS_CONSUMER_ENABLE_BARCODES: true
+      PAPERLESS_CONSUMER_ENABLE_ASN_BARCODE: true
+
+volumes:
+  data:
+    name: ${VOLUME_NAME_DATA}
+  media:
+    name: ${VOLUME_NAME_MEDIA}
+  pgdata:
+    name: ${VOLUME_NAME_PG_DATA}
+  redisdata:
+    name: ${VOLUME_NAME_REDIS_DATA}
