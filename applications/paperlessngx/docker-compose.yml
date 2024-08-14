@@ -4,6 +4,8 @@ services:
     restart: unless-stopped
     volumes:
       - redisdata:/data
+    labels:
+      - docker-volume-backup.stop-during-backup=${PAPERLESS_BROKER_BACKUP_SERVICE_LABEL}
 
   db:
     image: docker.io/library/postgres:16
@@ -14,6 +16,8 @@ services:
       POSTGRES_DB: ${POSTGRESS_DB}
       POSTGRES_USER: ${POSTGRESS_USER}
       POSTGRES_PASSWORD: ${POSTGRESS_PASSWORD}
+    labels:
+      - docker-volume-backup.stop-during-backup=${PAPERLESS_DB_BACKUP_SERVICE_LABEL}
 
   webserver:
     image: ghcr.io/paperless-ngx/paperless-ngx:latest
@@ -40,6 +44,8 @@ services:
       PAPERLESS_APP_TITLE: ${PAPERLESS_APP_TITLE}
       PAPERLESS_CONSUMER_ENABLE_BARCODES: true
       PAPERLESS_CONSUMER_ENABLE_ASN_BARCODE: true
+    labels:
+      - docker-volume-backup.stop-during-backup=${PAPERLESS_WEBSERVER_BACKUP_SERVICE_LABEL}
 
 volumes:
   data:
