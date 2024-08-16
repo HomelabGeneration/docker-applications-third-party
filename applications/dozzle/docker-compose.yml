@@ -12,4 +12,5 @@ services:
     environment:
       - "DOZZLE_NO_ANALYTICS=true"
       - "DOZZLE_AUTH_PROVIDER=simple"
+      - "DOZZLE_REMOTE_AGENT=${DOZZLE_REMOTE_AGENT_ONE}"
     restart: unless-stopped
