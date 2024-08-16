@@ -44,6 +44,7 @@ services:
       PAPERLESS_APP_TITLE: ${PAPERLESS_APP_TITLE}
       PAPERLESS_CONSUMER_ENABLE_BARCODES: true
       PAPERLESS_CONSUMER_ENABLE_ASN_BARCODE: true
+      PAPERLESS_OCR_DESKEW: true
     labels:
       - docker-volume-backup.stop-during-backup=${PAPERLESS_WEBSERVER_BACKUP_SERVICE_LABEL}
 
