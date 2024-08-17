@@ -55,12 +55,16 @@ services:
 
 volumes:
   data:
+    external: true
     name: ${VOLUME_NAME_DATA}
   media:
+    external: true
     name: ${VOLUME_NAME_MEDIA}
   pgdata:
+    external: true
     name: ${VOLUME_NAME_PG_DATA}
   redisdata:
+    external: true
     name: ${VOLUME_NAME_REDIS_DATA}
 
 secrets:
