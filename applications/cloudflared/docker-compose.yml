@@ -9,5 +9,8 @@ services:
       - --no-autoupdate
       - run
       - --token
-      - ${TOKEN}
+      - /run/secrets/cloudflared_token
     restart: unless-stopped
+secrets:
+  cloudflared_token:
+    external: true
