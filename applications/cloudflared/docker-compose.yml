@@ -11,6 +11,8 @@ services:
       - --token
       - /run/secrets/cloudflared_token
     restart: unless-stopped
+    secrets:
+      - cloudflared_token
 secrets:
   cloudflared_token:
     external: true
