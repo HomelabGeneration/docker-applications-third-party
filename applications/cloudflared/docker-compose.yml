@@ -9,10 +9,12 @@ services:
       - --no-autoupdate
       - run
       - --token
-      - /run/secrets/cloudflared_token
+      - "${CLOUDFLARED_TOKEN}"
     restart: unless-stopped
     secrets:
       - cloudflared_token
+    environment:
+      CLOUDFLARED_TOKEN: /run/secrets/cloudflared_token
 secrets:
   cloudflared_token:
     external: true
