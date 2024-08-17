@@ -4,16 +4,10 @@ services:
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared
-    command:
-      - tunnel
-      - --no-autoupdate
-      - run
-      - --token
+    command: tunnel --credentials-file /run/secrets/cloudflared_tunnel_token_file run ${TUNNEL_NAME}
     restart: unless-stopped
     secrets:
-      - cloudflared_token
-    environment:
-      TUNNEL_TOKEN: /run/secrets/cloudflared_token
+      - cloudflared_tunnel_token_file
 secrets:
-  cloudflared_token:
+  cloudflared_tunnel_token_file:
     external: true
