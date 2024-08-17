@@ -15,7 +15,9 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRESS_DB}
       POSTGRES_USER: ${POSTGRESS_USER}
-      POSTGRES_PASSWORD: ${POSTGRESS_PASSWORD}
+      POSTGRES_PASSWORD: /run/secrets/paperless_pg_password
+    secrets:
+      - paperless_pg_password
     labels:
       - docker-volume-backup.stop-during-backup=${PAPERLESS_DB_BACKUP_SERVICE_LABEL}
 
@@ -37,14 +39,17 @@ services:
       PAPERLESS_DBHOST: db
       USERMAP_UID: ${USER_UID}
       USERMAP_GID: ${USER_GID}
-      PAPERLESS_SECRET_KEY: ${PAPERLESS_SECRET_KEY}
+      PAPERLESS_SECRET_KEY: /run/secrets/paperless_secret_key
       PAPERLESS_TIME_ZONE: Europe/Berlin
       PAPERLESS_OCR_LANGUAGE: deu
       PAPERLESS_URL: ${PAPERLESS_URL}
       PAPERLESS_APP_TITLE: ${PAPERLESS_APP_TITLE}
       PAPERLESS_CONSUMER_ENABLE_BARCODES: true
       PAPERLESS_CONSUMER_ENABLE_ASN_BARCODE: true
+      PAPERLESS_CONSUMER_ENABLE_TAG_BARCODE: true
       PAPERLESS_OCR_DESKEW: true
+    secrets:
+      - paperless_secret_key
     labels:
       - docker-volume-backup.stop-during-backup=${PAPERLESS_WEBSERVER_BACKUP_SERVICE_LABEL}
 
@@ -57,3 +62,9 @@ volumes:
     name: ${VOLUME_NAME_PG_DATA}
   redisdata:
     name: ${VOLUME_NAME_REDIS_DATA}
+
+secrets:
+  paperless_pg_password:
+    external: true
+  paperless_secret_key:
+    external: true
