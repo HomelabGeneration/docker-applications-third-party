@@ -1,4 +1,4 @@
-version: "3.5"
+version: "3.8"
 
 services:
   influxdb:
@@ -13,6 +13,8 @@ services:
 
 volumes:
   influxdb_data:
+    external: true
     name: ${VOLUME_NAME_DATA}
   influxdb_config:
+    external: true
     name: ${VOLUME_NAME_CONFIG}
