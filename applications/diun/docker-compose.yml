@@ -21,6 +21,11 @@ services:
       - "DIUN_NOTIF_WEBHOOK_METHOD=${NOTIF_WEBHOOK_METHOD}"
       - "DIUN_NOTIF_WEBHOOK_HEADERS_CONTENT-TYPE=application/json"
     restart: unless-stopped
+    labels:
+      - docker-volume-backup.stop-during-backup=diun
+    deploy:
+      restart_policy:
+        condition: on-failure
 
 volumes:
   diun_data:
