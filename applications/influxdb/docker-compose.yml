@@ -10,6 +10,11 @@ services:
       - influxdb_data:/var/lib/influxdb2
       - influxdb_config:/etc/influxdb2
     restart: unless-stopped
+    labels:
+      - docker-volume-backup.stop-during-backup=influxdb
+    deploy:
+      restart_policy:
+        condition: on-failure
 
 volumes:
   influxdb_data:
