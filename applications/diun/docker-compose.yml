@@ -1,4 +1,4 @@
-version: "3.5"
+version: "3.8"
 
 services:
   diun:
@@ -15,8 +15,8 @@ services:
       - "DIUN_WATCH_WORKERS=20"
       - "DIUN_WATCH_SCHEDULE=${CRON_SCHEDULE}"
       - "DIUN_WATCH_JITTER=30s"
-      - "DIUN_PROVIDERS_DOCKER=true"
-      - "DIUN_PROVIDERS_DOCKER_WATCHBYDEFAULT=true"
+      - "DIUN_PROVIDERS_SWARM=true"
+      - "DIUN_PROVIDERS_SWARM_WATCHBYDEFAULT=true"
       - "DIUN_NOTIF_WEBHOOK_ENDPOINT=${NOTIF_WEBHOOK_ENDPOINT}"
       - "DIUN_NOTIF_WEBHOOK_METHOD=${NOTIF_WEBHOOK_METHOD}"
       - "DIUN_NOTIF_WEBHOOK_HEADERS_CONTENT-TYPE=application/json"
@@ -24,8 +24,10 @@ services:
     labels:
       - docker-volume-backup.stop-during-backup=diun
     deploy:
-      restart_policy:
-        condition: on-failure
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
 
 volumes:
   diun_data:
