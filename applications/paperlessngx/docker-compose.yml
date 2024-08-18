@@ -8,6 +8,9 @@ services:
       - redisdata:/data
     labels:
       - docker-volume-backup.stop-during-backup=${PAPERLESS_BROKER_BACKUP_SERVICE_LABEL}
+    deploy:
+      restart_policy:
+        condition: on-failure
 
   db:
     image: docker.io/library/postgres:16
@@ -22,6 +25,9 @@ services:
       - paperless_pg_password
     labels:
       - docker-volume-backup.stop-during-backup=${PAPERLESS_DB_BACKUP_SERVICE_LABEL}
+    deploy:
+      restart_policy:
+        condition: on-failure
 
   webserver:
     image: ghcr.io/paperless-ngx/paperless-ngx:latest
@@ -34,8 +40,8 @@ services:
     volumes:
       - data:/usr/src/paperless/data
       - media:/usr/src/paperless/media
-      - ./export:/usr/src/paperless/export
-      - ./consume:/usr/src/paperless/consume
+      - ${EXPORT_DIR}:/usr/src/paperless/export
+      - ${CONSUME_DIR}:/usr/src/paperless/consume
     environment:
       PAPERLESS_REDIS: redis://broker:6379
       PAPERLESS_DBHOST: db
@@ -54,6 +60,9 @@ services:
       - paperless_secret_key
     labels:
       - docker-volume-backup.stop-during-backup=${PAPERLESS_WEBSERVER_BACKUP_SERVICE_LABEL}
+    deploy:
+      restart_policy:
+        condition: on-failure
 
 volumes:
   data:
