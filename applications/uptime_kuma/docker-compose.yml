@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  uptime_kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime_kuma
+    ports:
+      - ${HTTP_PORT}:3001
+    volumes:
+      - uptime_kuma:/app/data
+    restart: unless-stopped
+    labels:
+      - docker-volume-backup.stop-during-backup=uptime_kuma
+    deploy:
+      restart_policy:
+        condition: on-failure
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+
+volumes:
+  uptime_kuma:
+    name: ${VOLUME_NAME}
