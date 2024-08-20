@@ -56,6 +56,8 @@ services:
       PAPERLESS_CONSUMER_ENABLE_ASN_BARCODE: 1
       PAPERLESS_CONSUMER_ENABLE_TAG_BARCODE: 1
       PAPERLESS_OCR_DESKEW: 1
+      PAPERLESS_CONSUMER_INOTIFY_DELAY: 30
+      PAPERLESS_OCR_USER_ARGS: '{"invalidate_digital_signatures": true}'
     secrets:
       - paperless_secret_key
     labels:
