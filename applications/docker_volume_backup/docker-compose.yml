@@ -11,8 +11,8 @@ services:
       WEBDAV_USERNAME: ${WEBDAV_USERNAME}
       WEBDAV_PASSWORD_FILE: /run/secrets/offen_docker_volume_backup_webdav_password
       BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS}
-      GPG_PASSPHRASE_FILE: /run/secrets/offen_docker_volume_backup_gpg_passphrase
       BACKUP_STOP_DURING_BACKUP_LABEL: ${BACKUP_STOP_DURING_BACKUP_LABEL}
+      AGE_PUBLIC_KEYS: ${AGE_PUBLIC_KEYS}
     volumes:
       - data:/backup/my-app-backup:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -20,7 +20,6 @@ services:
       - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
     secrets:
-      - offen_docker_volume_backup_gpg_passphrase
       - offen_docker_volume_backup_webdav_password
     deploy:
       replicas: 1
@@ -33,7 +32,5 @@ volumes:
     name: ${VOLUME_NAME}
 
 secrets:
-  offen_docker_volume_backup_gpg_passphrase:
-    external: true
   offen_docker_volume_backup_webdav_password:
     external: true
