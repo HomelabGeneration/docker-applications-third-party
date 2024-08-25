@@ -4,8 +4,19 @@ services:
   kicktippbot:
     image: ghcr.io/antonengelhardt/kicktipp-bot:amd64
     container_name: kicktipp-bot
+    environment:
+      KICKTIPP_EMAIL: ${KICKTIPP_EMAIL}
+      KICKTIPP_PASSWORD: /run/secrets/kicktipp_bot_password
+      KICKTIPP_NAME_OF_COMPETITION: ${KICKTIPP_NAME_OF_COMPETITION}
+      KICKTIPP_HOURS_UNTIL_GAME: ${KICKTIPP_HOURS_UNTIL_GAME}
+      KICKTIPP_RUN_EVERY_X_MINUTES: ${KICKTIPP_RUN_EVERY_X_MINUTES}
     restart: unless-stopped
-    env_file: .env
+    secrets:
+      - kicktipp_bot_password
     deploy:
       restart_policy:
         condition: on-failure
+
+secrets:
+  kicktipp_bot_password:
+    external: true
