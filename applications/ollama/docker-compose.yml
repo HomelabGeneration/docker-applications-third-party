@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - ${HTTP_PORT}:11434
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    labels:
+      - docker-volume-backup.stop-during-backup=ollama
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  ollama_data:
+    external: true
+    name: ${VOLUME_NAME}
