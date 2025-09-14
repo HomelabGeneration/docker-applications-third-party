@@ -10,8 +10,10 @@ services:
       - ${HTTP_PORT}:7070/tcp
       - ${OCPP_PORT}:8887/tcp
     volumes:
-      - ./evcc.yaml:/etc/evcc.yaml
       - data:/root/.evcc
+    configs:
+      - source: evcc_config
+        target: /etc/evcc.yaml
     labels:
       - docker-volume-backup.stop-during-backup=${EVCC_BACKUP_SERVICE_LABEL}
     restart: unless-stopped
@@ -20,3 +22,7 @@ volumes:
   data:
     external: true
     name: ${VOLUME_NAME}
+
+configs:
+  evcc_config:
+    external: true
