@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:v1.125.1
+    ports:
+      - ${HTTP_PORT}:8428
+      - ${INFLUX_PORT}:8089
+      - ${INFLUX_PORT}:8089/udp
+    volumes:
+      - data:/storage
+    labels:
+      - docker-volume-backup.stop-during-backup=${VICTORIAMETRICS_BACKUP_SERVICE_LABEL}
+    command:
+      - "--storageDataPath=/storage"
+      - "--httpListenAddr=:8428"
+      - "--influxListenAddr=:8089"
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  data:
+    external: true
+    name: ${VOLUME_NAME}
