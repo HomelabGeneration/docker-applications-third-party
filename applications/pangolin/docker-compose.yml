@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  newt:
+    image: fosrl/newt
+    container_name: newt
+    deploy:
+      restart_policy:
+        condition: on-failure
+    environment:
+      - CONFIG_FILE=/run/secrets/newt_config
+    secrets:
+      - newt_config
+
+secrets:
+  newt_config:
+    external: true
