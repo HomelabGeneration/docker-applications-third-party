@@ -49,7 +49,7 @@ volumes:
     name: ${VOLUME_NAME_DATA}
 
 secrets:
-  mail_app_settings:
+  mail_archiver_app_settings:
     external: true
-  db_password:
+  mail_archiver_db_password:
     external: true
