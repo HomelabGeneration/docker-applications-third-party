@@ -11,7 +11,7 @@ services:
     networks:
       - mail_net
     secrets:
-      - source: mail_app_settings
+      - source: mail_archiver_app_settings
         target: /app/appsettings.Production.json
     volumes:
       - mail_data_keys:/app/DataProtection-Keys
@@ -23,11 +23,11 @@ services:
     environment:
       POSTGRES_DB: MailArchiver
       POSTGRES_USER: mailuser
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_PASSWORD_FILE: /run/secrets/mail_archiver_db_password
     networks:
       - mail_net
     secrets:
-      - db_password
+      - mail_archiver_db_password
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
