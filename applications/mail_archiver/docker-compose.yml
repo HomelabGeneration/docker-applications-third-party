@@ -3,6 +3,8 @@ version: '3.8'
 services:
   mailarchive-app:
     image: s1t5/mailarchiver:latest
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
     deploy:
       restart_policy:
         condition: on-failure
