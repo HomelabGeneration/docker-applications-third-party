@@ -1,0 +1,83 @@
+version: '3.8'
+
+name: immich
+
+services:
+  immich-server:
+    container_name: immich_server
+    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    volumes:
+      - immich-data:/data
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      IMMICH_VERSION: ${IMMICH_VERSION}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_DATABASE_NAME: ${DB_DATABASE_NAME}
+      DB_PASSWORD_FILE: /run/secrets/immich_pg_password
+    ports:
+      - ${HTTP_PORT}:2283
+    depends_on:
+      - redis
+      - database
+    secrets:
+      - immich_pg_password
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  immich-machine-learning:
+    container_name: immich_machine_learning
+    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
+    volumes:
+      - model-cache:/cache
+    environment:
+      IMMICH_VERSION: ${IMMICH_VERSION}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_DATABASE_NAME: ${DB_DATABASE_NAME}
+      DB_PASSWORD_FILE: /run/secrets/immich_pg_password
+    secrets:
+      - immich_pg_password
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  redis:
+    container_name: immich_redis
+    image: docker.io/valkey/valkey:9@sha256:fb8d272e529ea567b9bf1302245796f21a2672b8368ca3fcb938ac334e613c8f
+    healthcheck:
+      test: redis-cli ping || exit 1
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  database:
+    container_name: immich_postgres
+    image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/immich_pg_password
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_DB: ${DB_DATABASE_NAME}
+      POSTGRES_INITDB_ARGS: '--data-checksums'
+    volumes:
+      - immich-db:/var/lib/postgresql/data
+    shm_size: 128mb
+    secrets:
+      - immich_pg_password
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  model-cache:
+    external: true
+    name: ${VOLUME_NAME_MODEL_CACHE}
+  immich-data:
+    external: true
+    name: ${VOLUME_NAME_DATA}
+  immich-db:
+    external: true
+    name: ${VOLUME_NAME_DB}
+
+secrets:
+  immich_pg_password:
+    external: true
