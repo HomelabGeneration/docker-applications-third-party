@@ -6,7 +6,7 @@ services:
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
     volumes:
       - immich-data:/data
-      - ${IMMICH_DATA_LIBRARY}:/data/library
+      - immich-data-library:/data/library
       - /etc/localtime:/etc/localtime:ro
     environment:
       IMMICH_VERSION: ${IMMICH_VERSION}
@@ -73,6 +73,9 @@ volumes:
   immich-data:
     external: true
     name: ${VOLUME_NAME_DATA}
+  immich-data-library:
+    external: true
+    name: ${VOLUME_NAME_DATA_LIBRARY}
   immich-db:
     external: true
     name: ${VOLUME_NAME_DB}
