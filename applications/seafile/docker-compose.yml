@@ -68,10 +68,8 @@ services:
         export JWT_PRIVATE_KEY=$$(cat /run/secrets/seafile_jwt_private_key)
         exec /sbin/my_init -- /scripts/enterpoint.sh
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
+      - db
+      - redis
     secrets:
       - seafile_mysql_root_password
       - seafile_db_password
