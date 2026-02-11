@@ -33,6 +33,32 @@ services:
       restart_policy:
         condition: on-failure
 
+  collabora:
+    container_name: seafile_collabora
+    image: collabora/code:24.04.5.1.1
+    cap_add:
+      - SYS_CHROOT
+      - SYS_ADMIN
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      aliasgroup1: https://${SEAFILE_SERVER_HOSTNAME}:443
+      server_name: ${COLLABORA_SERVER_HOSTNAME}
+      dictionaries: de_DE en_GB en_US
+      extra_params: --o:ssl.enable=false --o:ssl.termination=true
+      TZ: Europe/Berlin
+    ports:
+      - ${COLLABORA_PORT}:9980
+    healthcheck:
+      test: curl -f http://localhost:9980/hosting/discovery || exit 1
+      start_period: 30s
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    deploy:
+      restart_policy:
+        condition: on-failure
+
   seafile:
     container_name: seafile
     image: seafileltd/seafile-mc:13.0-latest
@@ -70,6 +96,7 @@ services:
     depends_on:
       - db
       - redis
+      - collabora
     secrets:
       - seafile_mysql_root_password
       - seafile_db_password
