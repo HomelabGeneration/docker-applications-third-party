@@ -12,8 +12,6 @@ services:
       - seafile-db:/var/lib/mysql
     secrets:
       - seafile_mysql_root_password
-    labels:
-      - "docker-volume-backup.stop-during-backup=seafile-db"
     healthcheck:
       test: healthcheck.sh --connect --mariadbupgrade --innodb_initialized
       start_period: 10s
@@ -59,6 +57,35 @@ services:
       restart_policy:
         condition: on-failure
 
+  onlyoffice:
+    container_name: seafile_onlyoffice
+    image: onlyoffice/documentserver:8.1.0.1
+    environment:
+      JWT_ENABLED: 'true'
+    ports:
+      - ${ONLYOFFICE_PORT}:80
+    volumes:
+      - seafile-onlyoffice-data:/var/www/onlyoffice/Data
+      - seafile-onlyoffice-lib:/var/lib/onlyoffice
+      - seafile-onlyoffice-log:/var/log/onlyoffice
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        export JWT_SECRET=$$(cat /run/secrets/onlyoffice_jwt_secret)
+        exec /app/ds/run-document-server.sh
+    secrets:
+      - onlyoffice_jwt_secret
+    healthcheck:
+      test: curl -f http://localhost/healthcheck || exit 1
+      start_period: 60s
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    deploy:
+      restart_policy:
+        condition: on-failure
+
   seafile:
     container_name: seafile
     image: seafileltd/seafile-mc:13.0-latest
@@ -97,13 +124,12 @@ services:
       - db
       - redis
       - collabora
+      - onlyoffice
     secrets:
       - seafile_mysql_root_password
       - seafile_db_password
       - seafile_admin_password
       - seafile_jwt_private_key
-    labels:
-      - "docker-volume-backup.stop-during-backup=seafile"
     healthcheck:
       test: curl -f http://localhost:80 || exit 1
       start_period: 30s
@@ -121,6 +147,15 @@ volumes:
   seafile-db:
     external: true
     name: ${VOLUME_NAME_DB}
+  seafile-onlyoffice-data:
+    external: true
+    name: ${VOLUME_NAME_ONLYOFFICE_DATA}
+  seafile-onlyoffice-lib:
+    external: true
+    name: ${VOLUME_NAME_ONLYOFFICE_LIB}
+  seafile-onlyoffice-log:
+    external: true
+    name: ${VOLUME_NAME_ONLYOFFICE_LOG}
 
 secrets:
   seafile_mysql_root_password:
@@ -130,4 +165,6 @@ secrets:
   seafile_admin_password:
     external: true
   seafile_jwt_private_key:
+    external: true
+  onlyoffice_jwt_secret:
     external: true
