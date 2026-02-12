@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  db:
+    image: mariadb:10.11
+    container_name: pydio_db
+    command: [
+      "--transaction-isolation=READ-COMMITTED",
+      "--binlog-format=ROW",
+      "--character-set-server=utf8mb4",
+      "--collation-server=utf8mb4_unicode_ci"
+    ]
+    environment:
+      MYSQL_DATABASE: cells
+      MYSQL_USER: pydio
+      MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+      MYSQL_PASSWORD_FILE: /run/secrets/pydio_db_password
+    volumes:
+      - cells-db-data:/var/lib/mysql
+    secrets:
+      - pydio_db_password
+    labels:
+      - "docker-volume-backup.stop-during-backup=pydio-db"
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  pydio:
+    image: pydio/cells:4
+    container_name: pydio
+    ports:
+      - "${HTTP_PORT:-8080}:8080"
+    volumes:
+      - cells-data:/var/cells
+    environment:
+      CELLS_BIND: '0.0.0.0:8080'
+      CELLS_EXTERNAL: ${CELLS_EXTERNAL_URL}
+      CELLS_NO_TLS: '1'
+      CELLS_LOG: production
+      TZ: Europe/Berlin
+    depends_on:
+      - db
+    labels:
+      - "docker-volume-backup.stop-during-backup=pydio"
+    healthcheck:
+      test: curl -f http://localhost:8080 || exit 1
+      start_period: 30s
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    deploy:
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          memory: 2G
+
+volumes:
+  cells-data:
+    name: ${VOLUME_NAME_DATA}
+    external: true
+  cells-db-data:
+    name: ${VOLUME_NAME_DB}
+    external: true
+
+secrets:
+  pydio_db_password:
+    external: true
