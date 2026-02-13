@@ -109,6 +109,12 @@ pwgen -s 40 1 | docker secret create onlyoffice_jwt_secret -
       "label": "Volume ONLYOFFICE log",
       "description": "ONLYOFFICE-Logs",
       "default": "seafile_onlyoffice_log"
+    },
+    {
+      "name": "MD_MAX_CACHE_SIZE",
+      "label": "Metadata Server cache size",
+      "description": "Maximale Cache-Groesse fuer den Metadata Server",
+      "default": "1GB"
     }
   ]
 }
@@ -200,6 +206,59 @@ Danach Seafile-Container neustarten.
 **Hinweise:**
 - `ONLYOFFICE_APIJS_URL` muss die extern erreichbare URL sein (nicht den Docker-internen Hostnamen), da das JavaScript im Browser des Nutzers geladen wird
 - `ONLYOFFICE_JWT_SECRET` in `seahub_settings.py` muss den gleichen Wert haben wie das Docker Secret `onlyoffice_jwt_secret`
+
+## Metadata Server
+
+Der Metadata Server ermoeglicht erweiterte Metadaten-Verwaltung fuer Seafile-Bibliotheken (z.B. "Extended Properties" in der Web-UI). Er laeuft als separater Container, teilt sich das Daten-Volume mit dem Seafile-Hauptcontainer und greift auf die gleiche MariaDB und Redis zu.
+
+### Seahub Konfiguration
+
+Nach dem ersten Start von Seafile muss `seahub_settings.py` ergaenzt werden:
+
+```python
+# Pfad im Container: /shared/seafile/conf/seahub_settings.py
+# Bzw. im Volume: <seafile-data-volume>/seafile/conf/seahub_settings.py
+
+ENABLE_METADATA_MANAGEMENT = True
+METADATA_SERVER_URL = 'http://seafile-md-server:8084'
+```
+
+Danach Seafile-Container neustarten.
+
+### Erweiterte Eigenschaften aktivieren
+
+Nach der Konfiguration koennen "Extended Properties" in der Seafile-Admin-UI aktiviert werden.
+
+### Cache-Groesse
+
+Die maximale Cache-Groesse des Metadata Servers wird ueber die Portainer-Variable `MD_MAX_CACHE_SIZE` gesteuert (Standard: `1GB`).
+
+### Troubleshooting: Extended Properties / Metadaten
+
+Neben dem Metadata-Server-Container (`seafile-md-server`, Port 8084) laeuft im Seafile-Hauptcontainer der `seafevents`-Daemon. Dieser startet einen internen REST-Server auf Port 8889 (Waitress/Flask), der fuer die Initialisierung von Metadaten-Tasks zustaendig ist (Endpoint `/add-init-metadata-task`). Beide Komponenten muessen laufen, damit Extended Properties funktionieren.
+
+**Symptom:** Beim Aktivieren von "Extended Properties" fuer eine Bibliothek erscheint:
+```
+seahub.repo_metadata.apis:165 HTTPConnectionPool(host='127.0.0.1', port=8889): Connection refused
+```
+
+**Haeufige Ursache (Proxmox/VM):** Der VM CPU-Typ ist nicht `host`. Der Standard-CPU-Typ (`kvm64`/`qemu64`) emuliert nur minimale x86-64-Features ohne SSE4.2/AVX. NumPy 2.x (Abhaengigkeit von seafevents) benoetigt diese CPU-Features und crasht beim Start still:
+```
+RuntimeError: NumPy was built with baseline optimizations: (X86_V2) but your machine doesn't support: (X86_V2).
+```
+
+**Fix:** In Proxmox den CPU-Typ der VM auf `host` setzen (oder einen Typ mit mindestens SSE4.2-Support). Danach VM neustarten.
+
+**Diagnose:**
+```bash
+# Pruefen ob seafevents laeuft
+docker exec seafile ps aux | grep event
+
+# Wenn kein Prozess laeuft, Logs pruefen
+docker exec seafile cat /opt/seafile/logs/seafevents.log
+```
+
+**Hinweis:** `SEAFEVENTS_SERVER_URL` in `seahub_settings.py` NICHT ueberschreiben — der Default `http://127.0.0.1:8889` ist korrekt, da seafevents im selben Container wie seahub laeuft.
 
 ## Notes
 

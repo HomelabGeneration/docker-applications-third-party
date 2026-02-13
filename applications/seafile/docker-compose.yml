@@ -140,6 +140,51 @@ services:
       restart_policy:
         condition: on-failure
 
+  seafile-md-server:
+    container_name: seafile_md_server
+    image: seafileltd/seafile-md-server:13.0-latest
+    volumes:
+      - seafile-data:/shared
+    environment:
+      SEAFILE_MYSQL_DB_HOST: db
+      SEAFILE_MYSQL_DB_PORT: 3306
+      SEAFILE_MYSQL_DB_USER: ${SEAFILE_DB_USER}
+      SEAFILE_MYSQL_DB_SEAFILE_DB_NAME: seafile_db
+      SEAFILE_LOG_TO_STDOUT: 'true'
+      MD_PORT: 8084
+      MD_LOG_LEVEL: info
+      MD_MAX_CACHE_SIZE: ${MD_MAX_CACHE_SIZE}
+      MD_CHECK_UPDATE_INTERVAL: 30m
+      MD_FILE_COUNT_LIMIT: 100000
+      MD_STORAGE_TYPE: disk
+      CACHE_PROVIDER: redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ''
+    command:
+      - /bin/bash
+      - -c
+      - |
+        export JWT_PRIVATE_KEY=$$(cat /run/secrets/seafile_jwt_private_key)
+        export SEAFILE_MYSQL_DB_PASSWORD=$$(cat /run/secrets/seafile_db_password)
+        exec /opt/scripts/entrypoint.sh
+    secrets:
+      - seafile_jwt_private_key
+      - seafile_db_password
+    depends_on:
+      - db
+      - redis
+      - seafile
+    healthcheck:
+      test: grep -q ':1F94' /proc/net/tcp || grep -q ':1F94' /proc/net/tcp6 || exit 1
+      start_period: 120s
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    deploy:
+      restart_policy:
+        condition: on-failure
+
 volumes:
   seafile-data:
     external: true
