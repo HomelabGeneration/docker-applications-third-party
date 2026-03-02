@@ -24,5 +24,6 @@ Holding all the third party docker applications as docker compose based version.
 | paperlessngx | Document management and OCR | |
 | pydio | Self-hosted file sync and share | [README](applications/pydio/README.md) |
 | seafile | Self-hosted file sync and share | [README](applications/seafile/README.md) |
+| traefik | Reverse proxy with automatic TLS | [README](applications/traefik/README.md) |
 | uptime_kuma | Server uptime monitoring and alerts | |
 | victoriametrics | Time-series metrics storage | |
