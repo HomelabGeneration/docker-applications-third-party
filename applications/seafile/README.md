@@ -115,6 +115,21 @@ pwgen -s 40 1 | docker secret create onlyoffice_jwt_secret -
       "label": "Metadata Server cache size",
       "description": "Maximale Cache-Groesse fuer den Metadata Server",
       "default": "1GB"
+    },
+    {
+      "name": "TRAEFIK_HOST",
+      "label": "Traefik hostname (Seafile)",
+      "description": "Hostname for Traefik routing to Seafile (e.g. seafile.lab.example.com)"
+    },
+    {
+      "name": "TRAEFIK_COLLABORA_HOST",
+      "label": "Traefik hostname (Collabora)",
+      "description": "Hostname for Traefik routing to Collabora (e.g. collabora.lab.example.com)"
+    },
+    {
+      "name": "TRAEFIK_ONLYOFFICE_HOST",
+      "label": "Traefik hostname (ONLYOFFICE)",
+      "description": "Hostname for Traefik routing to ONLYOFFICE (e.g. onlyoffice.lab.example.com)"
     }
   ]
 }

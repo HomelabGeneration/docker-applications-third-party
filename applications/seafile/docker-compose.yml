@@ -53,9 +53,18 @@ services:
       interval: 15s
       timeout: 10s
       retries: 5
+    networks:
+      - default
+      - traefik-public
     deploy:
       restart_policy:
         condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.seafile-collabora.rule=Host(`${TRAEFIK_COLLABORA_HOST}`)"
+        - "traefik.http.routers.seafile-collabora.entrypoints=websecure"
+        - "traefik.http.routers.seafile-collabora.tls.certresolver=desecresolver"
+        - "traefik.http.services.seafile-collabora.loadbalancer.server.port=9980"
 
   onlyoffice:
     container_name: seafile_onlyoffice
@@ -82,9 +91,18 @@ services:
       interval: 15s
       timeout: 10s
       retries: 5
+    networks:
+      - default
+      - traefik-public
     deploy:
       restart_policy:
         condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.seafile-onlyoffice.rule=Host(`${TRAEFIK_ONLYOFFICE_HOST}`)"
+        - "traefik.http.routers.seafile-onlyoffice.entrypoints=websecure"
+        - "traefik.http.routers.seafile-onlyoffice.tls.certresolver=desecresolver"
+        - "traefik.http.services.seafile-onlyoffice.loadbalancer.server.port=80"
 
   seafile:
     container_name: seafile
@@ -136,9 +154,18 @@ services:
       interval: 15s
       timeout: 10s
       retries: 5
+    networks:
+      - default
+      - traefik-public
     deploy:
       restart_policy:
         condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.seafile.rule=Host(`${TRAEFIK_HOST}`)"
+        - "traefik.http.routers.seafile.entrypoints=websecure"
+        - "traefik.http.routers.seafile.tls.certresolver=desecresolver"
+        - "traefik.http.services.seafile.loadbalancer.server.port=80"
 
   seafile-md-server:
     container_name: seafile_md_server
@@ -201,6 +228,10 @@ volumes:
   seafile-onlyoffice-log:
     external: true
     name: ${VOLUME_NAME_ONLYOFFICE_LOG}
+
+networks:
+  traefik-public:
+    external: true
 
 secrets:
   seafile_mysql_root_password:

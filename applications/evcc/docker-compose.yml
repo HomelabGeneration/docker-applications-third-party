@@ -14,14 +14,28 @@ services:
     configs:
       - source: evcc_config
         target: /etc/evcc.yaml
-    labels:
-      - docker-volume-backup.stop-during-backup=${EVCC_BACKUP_SERVICE_LABEL}
-    restart: unless-stopped
+    networks:
+      - default
+      - traefik-public
+    deploy:
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.evcc.rule=Host(`${TRAEFIK_HOST}`)"
+        - "traefik.http.routers.evcc.entrypoints=websecure"
+        - "traefik.http.routers.evcc.tls.certresolver=desecresolver"
+        - "traefik.http.services.evcc.loadbalancer.server.port=7070"
+        - "docker-volume-backup.stop-during-backup=${EVCC_BACKUP_SERVICE_LABEL}"
 
 volumes:
   data:
     external: true
     name: ${VOLUME_NAME}
+
+networks:
+  traefik-public:
+    external: true
 
 configs:
   evcc_config:

@@ -61,11 +61,19 @@ services:
       PAPERLESS_OCR_USER_ARGS: '{"invalidate_digital_signatures": true}'
     secrets:
       - paperless_secret_key
-    labels:
-      - docker-volume-backup.stop-during-backup=${PAPERLESS_WEBSERVER_BACKUP_SERVICE_LABEL}
+    networks:
+      - default
+      - traefik-public
     deploy:
       restart_policy:
         condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.paperlessngx.rule=Host(`${TRAEFIK_HOST}`)"
+        - "traefik.http.routers.paperlessngx.entrypoints=websecure"
+        - "traefik.http.routers.paperlessngx.tls.certresolver=desecresolver"
+        - "traefik.http.services.paperlessngx.loadbalancer.server.port=8000"
+        - "docker-volume-backup.stop-during-backup=${PAPERLESS_WEBSERVER_BACKUP_SERVICE_LABEL}"
 
 volumes:
   data:
@@ -80,6 +88,10 @@ volumes:
   redisdata:
     external: true
     name: ${VOLUME_NAME_REDIS_DATA}
+
+networks:
+  traefik-public:
+    external: true
 
 secrets:
   paperless_pg_password:

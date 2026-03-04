@@ -6,12 +6,6 @@ services:
     container_name: mealie
     ports:
       - ${HTTP_PORT}:9000
-    deploy:
-      restart_policy:
-        condition: on-failure
-      resources:
-        limits:
-          memory: 1000M
     volumes:
       - mealie-data:/app/data/
     environment:
@@ -19,8 +13,27 @@ services:
       PGID: 1000
       TZ: Europe/Berlin
       BASE_URL: ${BASE_URL}
+    networks:
+      - default
+      - traefik-public
+    deploy:
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          memory: 1000M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.mealie.rule=Host(`${TRAEFIK_HOST}`)"
+        - "traefik.http.routers.mealie.entrypoints=websecure"
+        - "traefik.http.routers.mealie.tls.certresolver=desecresolver"
+        - "traefik.http.services.mealie.loadbalancer.server.port=9000"
 
 volumes:
   mealie-data:
     external: true
     name: ${VOLUME_NAME}
+
+networks:
+  traefik-public:
+    external: true

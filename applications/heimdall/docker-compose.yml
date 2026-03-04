@@ -1,4 +1,5 @@
 version: "3.8"
+
 services:
   heimdall:
     image: lscr.io/linuxserver/heimdall:latest
@@ -12,8 +13,23 @@ services:
     ports:
       - ${HTTP_PORT}:80
       - ${HTTPS_PORT}:443
-    restart: unless-stopped
+    networks:
+      - default
+      - traefik-public
+    deploy:
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.heimdall.rule=Host(`${TRAEFIK_HOST}`)"
+        - "traefik.http.routers.heimdall.entrypoints=websecure"
+        - "traefik.http.routers.heimdall.tls.certresolver=desecresolver"
+        - "traefik.http.services.heimdall.loadbalancer.server.port=80"
 
 volumes:
   heimdall_config:
     name: ${VOLUME_NAME}
+
+networks:
+  traefik-public:
+    external: true
